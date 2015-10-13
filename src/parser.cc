@@ -69,7 +69,10 @@ static v8::Local<v8::Value> walk(const rapidxml::xml_node<> *node)
 
   if (node->first_attribute())
   {
-    ret = NanNew<v8::Object>();
+    if (gCollectAttrs == true)
+      v8::Local<v8::Object>
+    else
+      ret = NanNew<v8::Object>();
     for (const rapidxml::xml_attribute<> *a = node->first_attribute(); a; a = a->next_attribute())
     {
       ++len;
@@ -177,6 +180,8 @@ static bool parseArgs(_NAN_METHOD_ARGS)
         gParseInteger = true;
       v8::String::Utf8Value s(tmp->Get(NanNew<v8::String>("skip_parse_when_begins_with"))->ToString());
       gBeginsWith = *s;
+      gCollectAttrs = false;
+      gCollectTags = false;
     }
   }
   else
@@ -186,6 +191,8 @@ static bool parseArgs(_NAN_METHOD_ARGS)
     gEmptyAttrValue = NanNew<v8::Boolean>(true);
     gParseDouble = true;
     gParseInteger = true;
+    gCollectAttrs = false;
+    gCollectTags = false;
     gBeginsWith = "";
   }
   return true;
