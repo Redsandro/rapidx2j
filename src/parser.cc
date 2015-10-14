@@ -70,22 +70,25 @@ static v8::Local<v8::Value> walk(const rapidxml::xml_node<> *node)
   if (node->first_attribute())
   {
     if (gCollectAttrs == true)
-      v8::Local<v8::Object>
+      ret = gEmptyAttrValue;
+      // Code to put all attributes in single object called gAttrKey
     else
-      ret = NanNew<v8::Object>();
-    for (const rapidxml::xml_attribute<> *a = node->first_attribute(); a; a = a->next_attribute())
     {
-      ++len;
-      std::string tmp(gAttrKey + std::string(a->name()));
-      v8::Local<v8::Value> attr = parseText(trim(std::string(a->value())));
-      if (attr == NanNull())
+      ret = NanNew<v8::Object>();
+      for (const rapidxml::xml_attribute<> *a = node->first_attribute(); a; a = a->next_attribute())
       {
-        v8::Local<v8::Value> at = gEmptyAttrValue;
-        v8::Local<v8::Object>::Cast(ret)->Set(NanNew<v8::String>(tmp), at);
-      }
-      else
-      {
-        v8::Local<v8::Object>::Cast(ret)->Set(NanNew<v8::String>(tmp), attr);
+        ++len;
+        std::string tmp(gAttrKey + std::string(a->name()));
+        v8::Local<v8::Value> attr = parseText(trim(std::string(a->value())));
+        if (attr == NanNull())
+        {
+          v8::Local<v8::Value> at = gEmptyAttrValue;
+          v8::Local<v8::Object>::Cast(ret)->Set(NanNew<v8::String>(tmp), at);
+        }
+        else
+        {
+          v8::Local<v8::Object>::Cast(ret)->Set(NanNew<v8::String>(tmp), attr);
+        }
       }
     }
   }
@@ -102,7 +105,6 @@ static v8::Local<v8::Value> walk(const rapidxml::xml_node<> *node)
       if (len == 0)
         ret = NanNew<v8::Object>();
       std::string prop = n->name();
-      toLower(prop);
       v8::Local<v8::Value> obj = walk(n);
       v8::Local<v8::Object> myret = v8::Local<v8::Object>::Cast(ret);
 
@@ -180,8 +182,8 @@ static bool parseArgs(_NAN_METHOD_ARGS)
         gParseInteger = true;
       v8::String::Utf8Value s(tmp->Get(NanNew<v8::String>("skip_parse_when_begins_with"))->ToString());
       gBeginsWith = *s;
-      gCollectAttrs = false;
-      gCollectTags = false;
+      gCollectAttrs = tmp->Get(NanNew<v8::String>("collect_attrs"))->BooleanValue();
+      gCollectTags = tmp->Get(NanNew<v8::String>("collect_tags"))->BooleanValue();
     }
   }
   else

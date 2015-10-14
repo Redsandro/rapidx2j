@@ -6,7 +6,9 @@ const default_options = {
   empty_attr_value: '', 
   parse_int_numbers: true, 
   parse_float_numbers: true, 
-  skip_parse_when_begins_with: ''
+  skip_parse_when_begins_with: '',
+  collect_tags: false,
+  collect_atts: false
 };
 
 /**
@@ -60,6 +62,12 @@ exports.parse = function() {
   // Parse numbers
   if (typeof options.parse_float_numbers !== 'boolean')
     options.parse_float_numbers = default_options.parse_float_numbers;
+  // Group attributes
+  if (typeof options.collect_atts !== 'boolean')
+    options.collect_atts = default_options.collect_atts;
+  // Group tags
+  if (typeof options.collect_tags !== 'boolean')
+    options.collect_tags = default_options.collect_tags;
   // Skip these tags for a speedup
   if (typeof options.skip_parse_when_begins_with !== 'string')
     options.skip_parse_when_begins_with = default_options.skip_parse_when_begins_with;
